@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для моей любимой 💖</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffe6eb;
+            background-image: radial-gradient(#ffb3c1 20%, transparent 20%),
+                              radial-gradient(#ffb3c1 20%, transparent 20%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Декоративные бантики по углам */
+        .bow {
+            position: absolute;
+            font-size: 40px;
+            user-select: none;
+        }
+        .bow-tl { top: 20px; left: 20px; }
+        .bow-tr { top: 20px; right: 20px; }
+        .bow-bl { bottom: 20px; left: 20px; }
+        .bow-br { bottom: 20px; right: 20px; }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+            border: 3px solid #ff85a2;
+            max-width: 450px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            height: 60px;
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+            background-color: #ff758f;
+        }
+
+        #noBtn {
+            background-color: #a3a3a3;
+            color: white;
+            position: absolute;
+        }
+
+        .hint {
+            color: #ff758f;
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        /* Экран с видео */
+        #videoScreen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-color: #ffe6eb;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .message-box {
+            font-size: 24px;
+            color: #d63384;
+            font-weight: bold;
+            max-width: 80%;
+            line-height: 1.5;
+            padding: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Контейнер для виджета Telegram */
+        .video-container {
+            width: 100%;
+            max-width: 450px;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background: white;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.4);
+        }
+    </style>
+    <script async src="https://telegram.org/js/telegram-widget.js?22" charset="utf-8"></script>
+</head>
+<body>
+
+    <div class="bow bow-tl">🎀</div>
+    <div class="bow bow-tr">🎀</div>
+    <div class="bow bow-bl">🎀</div>
+    <div class="bow bow-br">🎀</div>
+
+    <div class="container" id="mainContainer">
+        <h1>Ты любишь меня? 💖</h1>
+        <div class="buttons">
+            <button class="btn" id="yesBtn">Да</button>
+            <button class="btn" id="noBtn" style="left: 170px;">Нет</button>
+        </div>
+        <p class="hint">Подсказка: если хочешь продолжить, то нажми "Да" 😉</p>
+    </div>
+
+    <div id="videoScreen">
+        <div class="bow bow-tl">🎀</div>
+        <div class="bow bow-tr">🎀</div>
+        <div class="message-box" id="confessionText"></div>
+        
+        <div class="video-container" id="videoContainer">
+            </div>
+    </div>
+
+    <script>
+        // ЧЕМУ РАВНА ССЫЛКА НА ТВОЙ ПОСТ С ВИДЕО? 
+        // Замени строчку ниже на свою ссылку из канала!
+        const tgPostUrl = "https://t.me/mahinnn11234/100"; // Замени этот адрес на свой!
+
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const videoScreen = document.getElementById('videoScreen');
+        const confessionText = document.getElementById('confessionText');
+        const videoContainer = document.getElementById('videoContainer');
+
+        // Функция убегания кнопки "Нет"
+        function moveNoButton() {
+            const xMax = window.innerWidth - noBtn.offsetWidth - 20;
+            const yMax = window.innerHeight - noBtn.offsetHeight - 20;
+
+            const randomX = Math.max(20, Math.floor(Math.random() * xMax));
+            const randomY = Math.max(20, Math.floor(Math.random() * yMax));
+
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        }
+
+        noBtn.addEventListener('mouseenter', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        // Создание виджета Telegram динамически
+        function loadTgVideo() {
+            // Извлекаем имя канала и ID поста из ссылки
+            const parts = tgPostUrl.replace("https://t.me/", "").split("/");
+            const channelName = parts[0];
+            const postId = parts[1];
+
+            // Создаем тег скрипта, который сгенерирует плеер
+            const script = document.createElement('script');
+            script.src = "https://telegram.org/js/telegram-widget.js?22";
+            script.setAttribute("data-telegram-post", `${channelName}/${postId}`);
+            script.setAttribute("data-width", "100%");
+            script.setAttribute("data-userpic", "false"); // Скрывает аватарку канала для красоты
+
+            videoContainer.appendChild(script);
+        }
+
+        // Логика при нажатии на "Да"
+        yesBtn.addEventListener('click', () => {
+            videoScreen.style.display = 'flex';
+            confessionText.innerHTML = "Я так и знал, что ты нажмешь ДА! 🥰";
+
+            // Загружаем пост в фоне, пока она читает текст
+            loadTgVideo();
+
+            // Через 3 секунды меняем текст
+            setTimeout(() => {
+                confessionText.innerHTML = "Ну что ж, я просто хотел сказать, что я люблю тебя, и это видео посвящается тебе... 💖";
+                
+                // Еще через 4 секунды плавно показываем блок с Telegram-видео
+                setTimeout(() => {
+                    videoContainer.style.display = 'block';
+                    setTimeout(() => {
+                        videoContainer.style.opacity = '1';
+                    }, 50);
+                }, 4000);
+
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
